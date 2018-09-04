@@ -60,13 +60,48 @@ sub lightDevice {
 #lightDevice('FF754A:E24C16', 'hell', 'yeah');
 #lightDevice('FB9915:C956FC', 'hell', 'yeah');
 
-any '/' => sub {
-	my $self = shift;
+
+sub print_header {
+	my $devid = shift;
+	my $line1 = shift;
+	my $line2 = shift;
+	my $time = shift;
+	my $flash = shift;
 
 	print "Content-type: text/html\n\n";
+	print "devid = $devid<br>\n";
+	print "line1 = $line1<br>\n";
+	print "line2 = $line2<br>\n";
+	print "time = $time<br>\n";
+	print "flash = $flash<br>\n";
+}
+
+sub print_footer {
+
+}
+
+any '/' => sub {
+	my $self = shift;
+	my $devid = $self->param('devid');
+	my $line1 = $self->param('line1');
+	my $line2 = $self->param('line2');
+	my $flash = $self->param('flash');
+	my $time = $self->param('time');
+
+	if (!defined $time) {
+		$time = 10;
+	}
+
+	if (!defined $flash) {
+		$flash = 1;
+	}
+
+	print_header($devid, $line1, $line2, $time, $flash);
+
 	init();
-	#lightDevice($self);
-	lightDevice('FB9915:C956FC', 'hell', 'yeah');
+	lightDevice($devid, $line1, $line2, $time, $flash);
+
+	# print_footer();
 
 	$self->render(text => 'FreshGrill Food robotics', format => 'text');
 };
