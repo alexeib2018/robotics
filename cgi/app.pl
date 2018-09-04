@@ -5,8 +5,9 @@ use Net::Curl::Easy;
 use Mojolicious::Lite;
 
 
-my $name = 'yourname';
-my $pass = 'yourpassword';
+require "settings.pl";
+our $name;
+our $pass;
 
 
 sub init {
