@@ -1,12 +1,17 @@
 #!/usr/bin/env perl
-
 use strict;
 use warnings;
 use Net::Curl::Easy;
- 
+use Mojolicious::Lite;
+
+
+my name = 'yourname';
+my pass = 'yourpassword';
+
+
 sub init {
 	my $curl = Net::Curl::Easy->new;
-	 
+
 	$curl->setopt(Net::Curl::Easy::CURLOPT_URL(),"https://www.sku-keeper.com/api");
 	$curl->setopt(Net::Curl::Easy::CURLOPT_HEADER(), 1);
 	$curl->setopt(Net::Curl::Easy::CURLOPT_USERAGENT(), 'PHP script');
@@ -14,7 +19,7 @@ sub init {
 	$curl->setopt(Net::Curl::Easy::CURLOPT_COOKIEJAR(), "cookie.txt");
 	$curl->setopt(Net::Curl::Easy::CURLOPT_COOKIEFILE(), 'cookie.txt');
 	$curl->setopt(Net::Curl::Easy::CURLOPT_POST(), 1);
-	$curl->setopt(Net::Curl::Easy::CURLOPT_POSTFIELDS(), "name=yourname&pass=yourpassword&form_id=user_login_block");
+	$curl->setopt(Net::Curl::Easy::CURLOPT_POSTFIELDS(), "name=$name&pass=$pass&form_id=user_login_block");
 
 	my $retcode = $curl->perform;
 }
@@ -48,9 +53,18 @@ sub lightDevice {
 	my $retcode = $curl->perform;
 }
 
-init();
-lightDevice('E8D787:72D9D7', 'hell', 'yeah');
-lightDevice('FFFE81:A42B35', 'hell', 'yeah');
-lightDevice('FAAD4B:8E336A', 'hell', 'yeah');
-lightDevice('FF754A:E24C16', 'hell', 'yeah');
-lightDevice('FB9915:C956FC', 'hell', 'yeah');
+#init();
+#lightDevice('E8D787:72D9D7', 'hell', 'yeah');
+#lightDevice('FFFE81:A42B35', 'hell', 'yeah');
+#lightDevice('FAAD4B:8E336A', 'hell', 'yeah');
+#lightDevice('FF754A:E24C16', 'hell', 'yeah');
+#lightDevice('FB9915:C956FC', 'hell', 'yeah');
+
+any 'app.pl' => sub {
+	my $self = shift;
+
+	init();
+	lightDevice($self);
+};
+
+app->start;
