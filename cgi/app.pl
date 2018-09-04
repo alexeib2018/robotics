@@ -69,15 +69,45 @@ sub print_header {
 	my $flash = shift;
 
 	print "Content-type: text/html\n\n";
-	print "devid = $devid<br>\n";
-	print "line1 = $line1<br>\n";
-	print "line2 = $line2<br>\n";
-	print "time = $time<br>\n";
-	print "flash = $flash<br>\n";
+	print "<html>
+			<body>
+				<div style='font-size: large; margin: 10px;'>
+					FreshGrill Robotics
+				</div>
+				<div style='font-size: larger; margin: 10px;'>
+					devid = $devid<br>
+		       		line1 = $line1<br>
+		       		line2 = $line2<br>
+		       		time = $time<br>
+		       		flash = $flash<br>
+		       	</div>
+		       	<div style='font-size:larger; margin:10px;' id='show_btn'>
+		       		<button onclick='show_debug()'>Show Voodo Robotics debug</button>
+		       	</div>
+		       	<div style='font-size:larger; margin:10px; display:none;' id='hide_btn'>
+		       		<button onclick='hide_debug()'>Hide Voodo Robotics debug</button>
+		       	</div>
+		       	<script type='text/javascript'>
+		       		function show_debug() {
+		       			document.getElementById('show_btn').style.display = 'none'
+		       			document.getElementById('hide_btn').style.display = ''
+		       			document.getElementById('voodoo_robotics_debug').style.display = ''
+		       		}
+		       		function hide_debug() {
+		       			document.getElementById('show_btn').style.display = ''
+		       			document.getElementById('hide_btn').style.display = 'none'
+		       			document.getElementById('voodoo_robotics_debug').style.display = 'none'
+		       		}
+		       	</script>
+		       	<div style='display:none' id='voodoo_robotics_debug'>
+	      ";
 }
 
 sub print_footer {
-
+	print "		</div>
+			</body>
+		   </html>
+		  ";
 }
 
 any '/' => sub {
@@ -103,16 +133,7 @@ any '/' => sub {
 
 	# print_footer();
 
-	$self->render(text => 'FreshGrill Food robotics', format => 'text');
+	$self->render(text => '', format => 'text');
 };
-
-#any 'app.pl' => sub {
-#	my $self = shift;
-
-	#init();
-	#lightDevice($self);
-
-#	$self->render(text => 'FreshGrill Food robotics', format => 'json');
-#};
 
 app->start;
