@@ -5,8 +5,8 @@ use Net::Curl::Easy;
 use Mojolicious::Lite;
 
 
-my name = 'yourname';
-my pass = 'yourpassword';
+my $name = 'yourname';
+my $pass = 'yourpassword';
 
 
 sub init {
@@ -60,11 +60,24 @@ sub lightDevice {
 #lightDevice('FF754A:E24C16', 'hell', 'yeah');
 #lightDevice('FB9915:C956FC', 'hell', 'yeah');
 
-any 'app.pl' => sub {
+any '/' => sub {
 	my $self = shift;
 
+	print "Content-type: text/html\n\n";
 	init();
-	lightDevice($self);
+	#lightDevice($self);
+	lightDevice('FB9915:C956FC', 'hell', 'yeah');
+
+	$self->render(text => 'FreshGrill Food robotics', format => 'text');
 };
+
+#any 'app.pl' => sub {
+#	my $self = shift;
+
+	#init();
+	#lightDevice($self);
+
+#	$self->render(text => 'FreshGrill Food robotics', format => 'json');
+#};
 
 app->start;
