@@ -1,20 +1,20 @@
 #!/usr/bin/env perl
 
-#use strict;
-#use warnings;
-use WWW::Curl::Easy;
+use strict;
+use warnings;
+use Net::Curl::Easy;
  
 sub init {
-	my $curl = WWW::Curl::Easy->new;
+	my $curl = Net::Curl::Easy->new;
 	 
-	$curl->setopt(CURLOPT_URL,"https://www.sku-keeper.com/api");
-	$curl->setopt(CURLOPT_HEADER, 1);
-	$curl->setopt(CURLOPT_USERAGENT, 'PHP script');
-	$curl->setopt(CURLOPT_FOLLOWLOCATION, 1);
-	$curl->setopt(CURLOPT_COOKIEJAR, "cookie.txt");
-	$curl->setopt(CURLOPT_COOKIEFILE, 'cookie.txt');
-	$curl->setopt(CURLOPT_POST, 1);
-	$curl->setopt(CURLOPT_POSTFIELDS, "name=yourname&pass=yourpassword&form_id=user_login_block");
+	$curl->setopt(Net::Curl::Easy::CURLOPT_URL(),"https://www.sku-keeper.com/api");
+	$curl->setopt(Net::Curl::Easy::CURLOPT_HEADER(), 1);
+	$curl->setopt(Net::Curl::Easy::CURLOPT_USERAGENT(), 'PHP script');
+	$curl->setopt(Net::Curl::Easy::CURLOPT_FOLLOWLOCATION(), 1);
+	$curl->setopt(Net::Curl::Easy::CURLOPT_COOKIEJAR(), "cookie.txt");
+	$curl->setopt(Net::Curl::Easy::CURLOPT_COOKIEFILE(), 'cookie.txt');
+	$curl->setopt(Net::Curl::Easy::CURLOPT_POST(), 1);
+	$curl->setopt(Net::Curl::Easy::CURLOPT_POSTFIELDS(), "name=yourname&pass=yourpassword&form_id=user_login_block");
 
 	my $retcode = $curl->perform;
 }
@@ -23,20 +23,27 @@ sub lightDevice {
 	my $devID = shift;
 	my $line1 = shift;
 	my $line2 = shift;
-	my $time = 10;
-	my $flash = 1;
+	my $time = shift;
+	my $flash = shift;
+
+	if (!defined $time) {
+		$time = 10;
+	}
+
+	if (!defined $flash) {
+		$flash = 1;
+	}
 
 	my $cmd = 'pick';
 	if ($flash) {
 		$cmd = 'message';
 	}
 
-	my $curl = WWW::Curl::Easy->new;
+	my $curl = Net::Curl::Easy->new;
 
-	$curl->setopt(CURLOPT_HEADER, 1);
-	$curl->setopt(CURLOPT_RETURNTRANSFER, 1);
-	$curl->setopt(CURLOPT_COOKIEFILE, "cookie.txt");
-	$curl->setopt(CURLOPT_URL,"https://www.sku-keeper.com/api/$devID/$cmd/$line1/$line2/15,c5,4/$time");
+	$curl->setopt(Net::Curl::Easy::CURLOPT_HEADER(), 1);
+	$curl->setopt(Net::Curl::Easy::CURLOPT_COOKIEFILE(), "cookie.txt");
+	$curl->setopt(Net::Curl::Easy::CURLOPT_URL(),"https://www.sku-keeper.com/api/$devID/$cmd/$line1/$line2/15,c5,4/$time");
 
 	my $retcode = $curl->perform;
 }
