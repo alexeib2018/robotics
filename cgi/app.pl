@@ -30,6 +30,7 @@ sub lightDevice {
 	my $line2 = shift;
 	my $time = shift;
 	my $flash = shift;
+	my $confirm = shift;
 
 	if (!defined $time) {
 		$time = 10;
@@ -37,6 +38,10 @@ sub lightDevice {
 
 	if (!defined $flash) {
 		$flash = 1;
+	}
+
+	if (!defined $confirm) {
+	    $confirm = 99;
 	}
 
 	my $cmd = 'pick';
@@ -48,7 +53,7 @@ sub lightDevice {
 
 	$curl->setopt(Net::Curl::Easy::CURLOPT_HEADER(), 1);
 	$curl->setopt(Net::Curl::Easy::CURLOPT_COOKIEFILE(), "cookie.txt");
-	$curl->setopt(Net::Curl::Easy::CURLOPT_URL(),"https://www.sku-keeper.com/api/$devID/$cmd/$line1/$line2/15,c5,4/$time");
+	$curl->setopt(Net::Curl::Easy::CURLOPT_URL(),"https://www.sku-keeper.com/api/$devID/$cmd/$line1/$line2/15,c5,4/$time/$confirm");
 
 	my $retcode = $curl->perform;
 }
@@ -67,6 +72,7 @@ sub print_header {
 	my $line2 = shift;
 	my $time = shift;
 	my $flash = shift;
+	my $confirm = shift;
 
 	print "Content-type: text/html\n\n";
 	print "<html>
@@ -80,6 +86,7 @@ sub print_header {
 		       		line2 = $line2<br>
 		       		time = $time<br>
 		       		flash = $flash<br>
+		       		confirm = $confirm<br>
 		       	</div>
 		       	<div style='font-size:larger; margin:10px;' id='show_btn'>
 		       		<button onclick='show_debug()'>Show Voodo Robotics debug</button>
@@ -149,6 +156,7 @@ my $line1 = %form_data{'line1'};
 my $line2 = %form_data{'line2'};
 my $flash = %form_data{'flash'};
 my $time = %form_data{'time'};
+my $confirm = %form_data{'confirm'};
 
 if (!defined $time) {
 	$time = 10;
@@ -158,46 +166,13 @@ if (!defined $flash) {
 	$flash = 1;
 }
 
-print_header($devid, $line1, $line2, $time, $flash);
+if (!defined $confirm) {
+    $confirm = 99;
+}
+
+print_header($devid, $line1, $line2, $time, $flash, $confirm);
 
 init();
-lightDevice($devid, $line1, $line2, $time, $flash);
+lightDevice($devid, $line1, $line2, $time, $flash, $confirm);
 
 print_footer();
-
-
-print "devid: $devid\n";
-print "line1: $line1\n";
-print "line2: $line2\n";
-print "flash: $flash\n";
-print "time: $time\n";
-
-q(
-any '/' => sub {
-	my $self = shift;
-	my $devid = $self->param('devid');
-	my $line1 = $self->param('line1');
-	my $line2 = $self->param('line2');
-	my $flash = $self->param('flash');
-	my $time = $self->param('time');
-
-	if (!defined $time) {
-		$time = 10;
-	}
-
-	if (!defined $flash) {
-		$flash = 1;
-	}
-
-	print_header($devid, $line1, $line2, $time, $flash);
-
-	init();
-	lightDevice($devid, $line1, $line2, $time, $flash);
-
-	# print_footer();
-
-	$self->render(text => '', format => 'text');
-};
-
-app->start;
-);
