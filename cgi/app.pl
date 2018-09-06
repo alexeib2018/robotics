@@ -66,6 +66,44 @@ sub lightDevice {
 #lightDevice('FB9915:C956FC', 'hell', 'yeah');
 
 
+sub print_pick_portal {
+	print "<hr/>
+				<div style='font-size: large; margin: 10px;'>
+					Fresh Grill Pick Portal
+					<table style='margin: 20px;'>
+						<tr>
+							<td><div style='margin: 5px;'>Device ID:</div></td>
+							<td><input type='text' id='devid'></td>
+						</tr>
+						<tr>
+							<td><div style='margin: 5px;'>Line 1:</div></td>
+							<td><input type='text' id='line1'></td>
+						</tr>
+						<tr>
+							<td><div style='margin: 5px;'>Line 2:</div></td>
+							<td><input type='text' id='line2'></td>
+						</tr>
+						<tr>
+							<td><div style='margin: 5px;'>&nbsp;</td>
+							<td><button onclick='submit_data()'>Submit</button></td>
+						</tr>
+					</table>
+				</div>
+				<div style='margin: 10px;'>
+					&copy; Copyright freshgrillfoods.com 2018
+				</div>
+				<script type='text/javascript'>
+					function submit_data() {
+						var devid = document.getElementById('devid').value
+						var line1 = document.getElementById('line1').value
+						var line2 = document.getElementById('line2').value
+						document.location.href = document.location.pathname + '?devid=' + devid + '&line1=' + line1 + '&line2=' + line2
+					}
+				</script>
+	       <hr/>
+	";
+}
+
 sub print_header {
 	my $devid = shift;
 	my $line1 = shift;
@@ -88,7 +126,12 @@ sub print_header {
 		       		flash = $flash<br>
 		       		confirm = $confirm<br>
 		       	</div>
-		       	<div style='font-size:larger; margin:10px;' id='show_btn'>
+		  ";
+
+	print_pick_portal();
+
+	print "
+			    <div style='font-size:larger; margin:10px;' id='show_btn'>
 		       		<button onclick='show_debug()'>Show Voodo Robotics debug</button>
 		       	</div>
 		       	<div style='font-size:larger; margin:10px; display:none;' id='hide_btn'>
@@ -106,7 +149,8 @@ sub print_header {
 		       			document.getElementById('voodoo_robotics_debug').style.display = 'none'
 		       		}
 		       	</script>
-		       	<div style='display:none' id='voodoo_robotics_debug'>
+				<div style='display:none' id='voodoo_robotics_debug'>
+
 	      ";
 }
 
