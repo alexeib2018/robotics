@@ -2,7 +2,6 @@
 use strict;
 use warnings;
 use Net::Curl::Easy;
-use Mojolicious::Lite;
 
 
 require "settings.pl";
@@ -111,6 +110,53 @@ sub print_footer {
 		  ";
 }
 
+sub get_form_data {
+	my $method = $ENV{'REQUEST_METHOD'};
+
+	my $text = '';
+	if ( $method eq "GET" ) {
+		$text = $ENV{'QUERY_STRING'};
+
+	}
+	else {    # default to POST
+	   	read( STDIN, $text, $ENV{'CONTENT_LENGTH'} );
+	}
+	# print "text: $text\n";
+
+	my @value_pairs = split( /&/, $text );
+
+	my %form_results = ();
+
+	foreach my $pair (@value_pairs) {
+		( my $key, my $value ) = split( /=/, $pair );
+		$value =~ tr/+/ /;
+		$value =~ s/%([\dA-Fa-f][\dA-Fa-f])/pack ("C", hex ($1))/eg;
+		$value =~ tr/A-Za-z0-9\ \,\.\:\/\@\-\!\"\_\{\}//dc;
+		$value =~ s/^\s+//g;
+		$value =~ s/\s+$//g;
+
+		$form_results{$key} = $value;    # store the key in the results hash
+	}
+	%form_results;
+}
+
+
+print "Content-type: text/utf-8\n\n";
+my %form_data = get_form_data();
+
+my $devid = %form_data{'devid'};
+my $line1 = %form_data{'line1'};
+my $line2 = %form_data{'line2'};
+my $flash = %form_data{'flash'};
+my $time = %form_data{'time'};
+
+print "devid: $devid\n";
+print "line1: $line1\n";
+print "line2: $line2\n";
+print "flash: $flash\n";
+print "time: $time\n";
+
+q(
 any '/' => sub {
 	my $self = shift;
 	my $devid = $self->param('devid');
@@ -138,3 +184,4 @@ any '/' => sub {
 };
 
 app->start;
+);
