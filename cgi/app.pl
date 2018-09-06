@@ -141,7 +141,7 @@ sub get_form_data {
 }
 
 
-print "Content-type: text/utf-8\n\n";
+# print "Content-type: text/utf-8\n\n";
 my %form_data = get_form_data();
 
 my $devid = %form_data{'devid'};
@@ -149,6 +149,22 @@ my $line1 = %form_data{'line1'};
 my $line2 = %form_data{'line2'};
 my $flash = %form_data{'flash'};
 my $time = %form_data{'time'};
+
+if (!defined $time) {
+	$time = 10;
+}
+
+if (!defined $flash) {
+	$flash = 1;
+}
+
+print_header($devid, $line1, $line2, $time, $flash);
+
+init();
+lightDevice($devid, $line1, $line2, $time, $flash);
+
+print_footer();
+
 
 print "devid: $devid\n";
 print "line1: $line1\n";
