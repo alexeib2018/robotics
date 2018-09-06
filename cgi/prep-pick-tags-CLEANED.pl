@@ -1,21 +1,27 @@
 #!/usr/bin/perl 
- use DBI;
- use Net::Curl::Easy;
+use strict;
+use warnings;
+use DBI;
+use Net::Curl::Easy;
  
   #todebug
  #$yesdebug  =1;
+
+print('FreshGrillFoods');
+  
+my $dbh;
+my $dbh2;
+#my $dbh = DBI->connect( "dbi:Pg:dbname=fg;host=rds.freshgrillfoods.com;port=5432;",  '**REMOVED**', '**REMOVED**',
+#   { RaiseError => 0,PrintError =>1} )
+# || warn "Cannot connect to database: $DBI::errstr";
  
- $dbh = DBI->connect( "dbi:Pg:dbname=fg;host=rds.freshgrillfoods.com;port=5432;",  '**REMOVED**', '**REMOVED**',
-   { RaiseError => 0,PrintError =>1} )
- || warn "Cannot connect to database: $DBI::errstr";
- 
- $dbh2 = DBI->connect( "dbi:Pg:dbname=fg;host=rds.freshgrillfoods.com;port=5432;",  '**REMOVED**', '**REMOVED**',
-   { RaiseError => 0,PrintError =>1} )
- || warn "Cannot connect to database: $DBI::errstr";
+#my $dbh2 = DBI->connect( "dbi:Pg:dbname=fg;host=rds.freshgrillfoods.com;port=5432;",  '**REMOVED**', '**REMOVED**',
+#   { RaiseError => 0,PrintError =>1} )
+# || warn "Cannot connect to database: $DBI::errstr";
  
  
- $begintime      = time();
- $date_as_string = localtime;
+my $begintime      = time();
+my $date_as_string = localtime;
  
  
  
@@ -74,21 +80,24 @@
   #get form
        my $method = $ENV{'REQUEST_METHOD'};
    
+       my $text = '';
        if ( $method eq "GET" ) {
-           $text = $ENV{'QUERY_STRING'};
+          $text = $ENV{'QUERY_STRING'};
    
        }
        else {    # default to POST
-           read( STDIN, $text, $ENV{'CONTENT_LENGTH'} );
+           #read( STDIN, $text, $ENV{'CONTENT_LENGTH'} );
+
+           $text = 'Hello, FreshGrillFoods';
    
            #print "TEXT:$text, $ENV{'CONTENT_LENGTH'}";
        }
    
        my @value_pairs = split( /&/, $text );
-       %form_results = ();
+       my %form_results = ();
    
-       foreach $pair (@value_pairs) {
-           ( $key, $value ) = split( /=/, $pair );
+       foreach my $pair (@value_pairs) {
+           ( my $key, my $value ) = split( /=/, $pair );
            $value =~ tr/+/ /;
            $value =~ s/%([\dA-Fa-f][\dA-Fa-f])/pack ("C", hex ($1))/eg;
            $value =~ tr/A-Za-z0-9\ \,\.\:\/\@\-\!\"\_\{\}//dc;
@@ -103,42 +112,44 @@
            }
    
            if  (( $key =~ /subanswer/i )&& ( $value ne "nothing" ))   {
-               $invoicelist = $key . ":" . $value;
-               push( @orderinvoice, $invoicelist );
+               my $invoicelist = $key . ":" . $value;
+               push( my @orderinvoice, $invoicelist );
            }
                if ( ( ( $key =~ /outs/i ) || ( $key =~ /ins/i ) ) && ( $value > 0 ) ) {
-               $itemlist = $key . ":" . $value;
-               push( @orderitems, $itemlist );
+               my $itemlist = $key . ":" . $value;
+               push( my @orderitems, $itemlist );
            }
            $form_results{$key} = $value;    # store the key in the results hash
-           $formsubmitted .= "|$key = $form_results{$key}|";
+           my $formsubmitted .= "|$key = $form_results{$key}|";
    }
    
    #end get form
  
   #check logged in
-   $rcvd_cookies = $ENV{'HTTP_COOKIE'};
+   my $rcvd_cookies = $ENV{'HTTP_COOKIE'};
   
-          @cookies      = split /;/, $rcvd_cookies;
-          $userid       = 0;
-          $gotcookie    = 0;
-          foreach $cookie2 (@cookies) {
+          my @cookies      = split /;/, $rcvd_cookies;
+          my $userid       = 0;
+          my $gotcookie    = 0;
+          foreach my $cookie2 (@cookies) {
               if ( $cookie2 =~ /temp-id/ ) {
   
                   $gotcookie = 1;
                   ( undef, $userid ) = split( /=/, $cookie2 );
   
-                  $sql = qq(
+                  my $sql = qq(
           select lower(email)from pick_logins where lower(temp_id) = lower(?) 
           );
+                  my $sth;
                   $sth = $dbh->prepare_cached($sql)
                     or warn "Cannot prepare/execute $sql\nError: " . $sth->errstr;
                   $sth->execute( lc($userid) )
                     or warn "Cannot prepare/execute $sql\nError: " . $sth->errstr;
+                  my $email;
                   $sth->bind_columns( undef, \$email );
-                  $gotsid = 0;
+                  my $gotsid = 0;
                   while ( $sth->fetch() ) {
-                      $gotsemail = $email;
+                      my $gotsemail = $email;
                   }
   
                   $sql = qq(
@@ -146,14 +157,17 @@
           );
                   $sth = $dbh2->prepare_cached($sql)
                     or warn "Cannot prepare/execute $sql\nError: " . $sth->errstr;
+                  my $gotsemail;
                   $sth->execute( lc($gotsemail) )
                     or warn "Cannot prepare/execute $sql\nError: " . $sth->errstr;
+                  my $id;
+                  my $active;
                   $sth->bind_columns( undef, \$id, \$email, \$active );
                   $gotsid = 0;
                   while ( $sth->fetch() ) {
                       $gotsid     = $id;
                       $gotsemail  = $email;
-                      $gotsactive = $active;
+                      my $gotsactive = $active;
                   }
   
   
@@ -161,18 +175,22 @@
   }
  #end checked login
  
+  my $gotsemail;
   if($gotsemail eq""){$gotsemail = "Guest";}
   
+  my $sdate;
+  my $date;
   if ($form_results{sdate} eq "")
   {
-                  $sql = qq(
+                  my $sql = qq(
           select cast(now() AT TIME ZONE 'PDT' as date);
           );
+          my $sth;
                   $sth = $dbh->prepare_cached($sql)
                     or warn "Cannot prepare/execute $sql\nError: " . $sth->errstr;
                   $sth->execute(  )
                     or warn "Cannot prepare/execute $sql\nError: " . $sth->errstr;
-        while (@row = $sth->fetchrow_array()){
+        while (my @row = $sth->fetchrow_array()){
                       $sdate = $row[0];
                   }
   
@@ -180,12 +198,12 @@
   }
   else
   {
-  $sdate = $form_results{sdate} ;
+    my $sdate = $form_results{sdate} ;
   
   }
   
-  
-   if(($gotsid == 0) || (($ENV{REMOTE_ADDR} !~ /70.165.35/) &&($gotsemail ne "kevin")))
+  my $body;
+   if((my $gotsid == 0) || (($ENV{REMOTE_ADDR} !~ /70.165.35/) && ($gotsemail ne "kevin")))
    {
   $body = <<END_EOS;
   <div class="cute-12-tablet ">
@@ -196,7 +214,7 @@
   <tr><td colspan=2 ><a href="/">Please Login </a></td></tr>
              </table>
   </div>
-  END_EOS
+END_EOS
   }
   else
  {
@@ -208,13 +226,13 @@
   <table cellspacing=0 cellpadding=0 border=0 style=" margin-left:auto;margin-right:auto;">
    <tr><td colspan=2 align=center><h2>Prep for pick date: $sdate</td></tr>           </table>
   </div>
-  END_EOS
+END_EOS
   
   $body .= <<END_EOS;
   <div class="cute-12-tablet ">
   <table  border=0 style=" margin-left:auto;margin-right:auto;text-align: left;">
-  END_EOS
-                  $sql = qq(
+END_EOS
+                  my $sql = qq(
            select pick_order,sales_order,count(*) as skus ,sum(qty) as qty,ceil(sum(qty)/19.0) as est_trays,min(device_hex) as device 
    from nav_orders as n
    join pick_tags as p on n.pick_order = p.location_code
@@ -222,16 +240,18 @@
    group by pick_order,sales_order 
    order by pick_order;
   );
+  my $sth;
                   $sth = $dbh2->prepare_cached($sql)
                     or warn "Cannot prepare/execute $sql\nError: " . $sth->errstr;
                   $sth->execute($sdate)
                     or warn "Cannot prepare/execute $sql\nError: " . $sth->errstr;
   $body .= "<tr><th>". join("</th><th>",@{ $sth->{NAME_lc} })."</th></tr>\n";
   
-  $count =0;
+  my $count =0;
   
-        while (@row = $sth->fetchrow_array()){
+        while (my @row = $sth->fetchrow_array()){
         @row = map { lc } @row;
+        my $bgclass;
   if ($count%2){$bgclass = " class=\"odd\" ";}else {$bgclass = "";}
   #$body .= "<tr $bgclass><td>". join("</td><td>",@row)."</td></tr>\n";
   $body .= <<END_EOS;
@@ -243,7 +263,7 @@
   <td>$row[4]</td>
   <td>$row[5]</td>
   </tr>
-  END_EOS
+END_EOS
   $count++;
   #send intial device info
    #lightDevice('static',$row[5], "sku 0/$row[2]", "qty /$row[3]",1);
@@ -261,13 +281,13 @@
    $body .= <<END_EOS;
    </table>
    </div>
-   END_EOS
+END_EOS
    
    
    }
    
    
-   print("Content-type: text/html\r\n\r\n");
+   print("Content-type: text/html\n\n");
        print <<END_OF_HTML;
    <!DOCTYPE html>
    <html>
@@ -348,5 +368,5 @@
               </body>
                </html>
   
- END_OF_HTML
+END_OF_HTML
   
