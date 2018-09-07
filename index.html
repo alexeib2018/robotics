@@ -22,15 +22,12 @@
           <ul class="navbar-nav mr-auto nav-pills">
           </ul>
           <div style="display:contents; font-size: smaller;">
-            <!-- a class="nav-link"
-                @click="proc_logout()"
-                href="#">Logout</a -->
           </div>
         </div>
       </nav>
 
       <!-- Begin page content -->
-      <main role="main" class="container">
+      <main role="main" class="container" style="margin-bottom:50px">
       	<div class="row">
 	      	<div class="col-2 float-right" style="text-align: right">
 	      		&nbsp;
@@ -65,9 +62,8 @@
 		      			class="btn btn-warning btn-sm">Confirm</button>
 	      	</div>
 	    </div>
-      </main>
 
-      <table class="table table-striped table-sm mt-5">
+		<table class="table table-striped table-sm mt-5">
 		  <thead>
 		    <tr>
 		      <th scope="col" style="width:20%; text-align:center;">Order No</th>
@@ -78,17 +74,19 @@
 		  </thead>
 		  <tbody>
 		    <tr v-for="record in records">
-		      <th scope="row" style="text-align:center;">{{ record.no }}</th>
-		      <td>{{ record.trays }}</td>
-		      <td>{{ record.weight }}</td>
+		      <th scope="row" style="text-align:center;">{{ record.order_no }}</th>
+		      <td>{{ record.tray_qty }}</td>
+		      <td>{{ record.weight_qty }}</td>
 		      <td style="text-align:center; padding:0">
-		      	<img  v-if="record.status==1" src="/img/loader.gif" style="width:25px; margin-top:4px" />
-		      	<span v-if="record.status==2" style="color:#00FF00; font-size: larger;">&#10004;</span>
-		      	<span v-if="record.status==3" style="font-size:larger; color:red;">&#65794;</span>
+		  	    <img  v-if="record.status==1" src="/img/loader.gif" style="width:25px; margin-top:4px" />
+		  	    <span v-if="record.status==2" style="color:#00FF00; font-size: larger;">&#10004;</span>
+		  	    <span v-if="record.status==3" style="font-size:larger; color:red;">&#65794;</span>
 		      </td>
 		    </tr>
 		  </tbody>
- 	  </table>
+		</table>
+      </main>
+
 	</div>
 
     <!-- Optional JavaScript -->
@@ -111,14 +109,28 @@
 		  },
 		  methods: {
 		  	send_confirm: function() {
-		  		this.records.push({ no: this.order_no,
-		  		                    trays: this.tray_qty,
-		  		                    weight: this.weight_qty,
+		  		var self = this
+		  		this.records.push({ order_no: this.order_no,
+		  		                    tray_qty: this.tray_qty,
+		  		                    weight_qty: this.weight_qty,
 		  		                    status: 1 })
+		  		var order_rec = this.records.length - 1
 
-		  		var url = ''
+		  		// ------ Set here AJAX url ------------------------------------
+		  		var url = '/cgi/app.pl'
+		  		// -------------------------------------------------------------
 
-
+		        var params = new URLSearchParams()
+		        params.append('order_no', this.order_no)
+		        params.append('tray_qty', this.tray_qty)
+		        params.append('weight_qty', this.weight_qty)
+		        axios.post(url, params)
+		             .then(function(data) {
+		             	self.records[order_rec].status = 2
+		             })
+		             .catch(function(error) {
+		             	self.records[order_rec].status = 3
+		             })
 		  		this.order_no++
 		  	}
 		  }
