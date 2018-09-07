@@ -171,9 +171,9 @@ sub get_form_data {
 	}
 	else {    # default to POST
 	   	read( STDIN, $text, $ENV{'CONTENT_LENGTH'} );
-		print "Content-type: text/plain\n\n";
+		# print "Content-type: text/plain\n\n";
 	}
-	print "request: $text\n";
+	# print "request: $text\n";
 
 	my @value_pairs = split( /&/, $text );
 
@@ -188,7 +188,7 @@ sub get_form_data {
 		$value =~ s/\s+$//g;
 
 		$form_results{$key} = $value;    # store the key in the results hash
-		print "$key = $value\n";
+		# print "$key = $value\n";
 	}
 	%form_results;
 }
