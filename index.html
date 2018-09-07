@@ -21,7 +21,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav mr-auto nav-pills">
           </ul>
-          <div v-if="login" style="display:contents; font-size: smaller;">
+          <div style="display:contents; font-size: smaller;">
             <!-- a class="nav-link"
                 @click="proc_logout()"
                 href="#">Logout</a -->
@@ -36,25 +36,33 @@
 	      		&nbsp;
 	      	</div>
 	      	<div class="col-10 my-2" style="font-size: x-large;">
-		      	Order 1
+		      	Order {{ order_no }}
 	      	</div>
 	      	<div class="col-2 my-1 float-right" style="text-align: right">
 	      		Trays:
 	      	</div>
-	      	<div class="col-10 my-1">
-	      		<input>
+	      	<div class="col-5 my-1">
+	      		<input type="text" v-model='tray_qty' class="form-control">
+	      	</div>
+	      	<div class="col-5 my-1">
+	      		&nbsp;
 	      	</div>
 	      	<div class="col-2 my-1 float-right" style="text-align: right">
 	      		Weight:
 	      	</div>
-	      	<div class="col-10 my-1">
-	      		<input>
+	      	<div class="col-5 my-1">
+	      		<input type="text" v-model='weight_qty' class="form-control">
+	      	</div>
+	      	<div class="col-5 my-1">
+	      		&nbsp;
 	      	</div>
 	      	<div class="col-2 my-1 float-right" style="text-align: right">
 	      		&nbsp;
 	      	</div>
 	      	<div class="col-10 my-1">
-		      	<button>Confirm</button>
+		      	<button type="button"
+		      			@click="send_confirm()"
+		      			class="btn btn-warning btn-sm">Confirm</button>
 	      	</div>
 	    </div>
       </main>
@@ -71,7 +79,7 @@
 		  <tbody>
 		    <tr v-for="record in records">
 		      <th scope="row" style="text-align:center;">{{ record.no }}</th>
-		      <td>{{ record.tray }}</td>
+		      <td>{{ record.trays }}</td>
 		      <td>{{ record.weight }}</td>
 		      <td style="text-align:center; padding:0">
 		      	<img  v-if="record.status==1" src="/img/loader.gif" style="width:25px; margin-top:4px" />
@@ -95,11 +103,23 @@
 		  el: '#app',
 		  data: function() {
 		    return {
-		      login: 0,
-		      records: [ { no: 1, tray: 'Tray 1', weight: 'Weight 1', status: 0 },
-		                 { no: 2, tray: 'Tray 2', weight: 'Weight 2', status: 1 },
-		                 { no: 3, tray: 'Tray 3', weight: 'Weight 3', status: 2 },
-		                 { no: 4, tray: 'Tray 4', weight: 'Weight 4', status: 3 } ]
+		      order_no: 1,
+		      tray_qty: '',
+		      weight_qty: '',
+		      records: []
+		  	}
+		  },
+		  methods: {
+		  	send_confirm: function() {
+		  		this.records.push({ no: this.order_no,
+		  		                    trays: this.tray_qty,
+		  		                    weight: this.weight_qty,
+		  		                    status: 1 })
+
+		  		var url = ''
+
+
+		  		this.order_no++
 		  	}
 		  }
 		})
